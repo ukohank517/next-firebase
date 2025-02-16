@@ -1,8 +1,11 @@
 'use client';
-import { auth, googleProvider } from '@/lib/firebase';
+import { appleProvider, auth, googleProvider } from '@/lib/firebase';
 import { Box, Button, createToaster, Heading } from '@chakra-ui/react';
 import { signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+
+// memo:
+// https://firebase.google.com/docs/auth/web/apple?hl=ja&_gl=1*166sfd8*_up*MQ..*_ga*Mjk3NTk0ODg0LjE3Mzk3MTM1ODE.*_ga_CW55HF8NVT*MTczOTcxMzU4MC4xLjAuMTczOTcxNDEyNC4wLjAuMA..
 
 const toaster = createToaster({
   placement: "bottom-end",
@@ -29,8 +32,21 @@ export default function Content() {
     }
   }
 
-  const handleAppleClick = () => {
+  const handleAppleClick = async () => {
     console.log("apple");
+    try {
+      const result = await signInWithPopup(auth, appleProvider);
+      if(result.user) {
+        router.push('/mypage')
+      }
+    } catch (error) {
+      console.error(error);
+      toaster.create({
+        title: 'login error',
+        description: 'ログインに失敗しました',
+        duration: 5000,
+      })
+    }
   }
 
   return (
