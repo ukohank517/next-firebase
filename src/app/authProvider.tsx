@@ -6,7 +6,8 @@ import {
   useState,
 } from 'react'
 import type { User } from 'firebase/auth'
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
 
 export type GlobalAuthState = {
   user: User | null | undefined // 認証success|認証fail|初期状態
@@ -23,7 +24,6 @@ export const AuthProvider = ({ children }: Props) => {
 
   useEffect(() => {
     try {
-      const auth = getAuth()
       return onAuthStateChanged(auth, (user) => {
         setUser({
           user,
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }: Props) => {
       setUser(initialState)
       throw error
     }
-     
+
   }, [])
 
   return <AuthContext.Provider value={user}>{children}</AuthContext.Provider>

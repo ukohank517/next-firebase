@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { getApp, getApps, initializeApp } from "firebase/app";
 
 import { getAuth, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
 
@@ -15,8 +15,8 @@ const firebaseConfig = {
 
 
 // Initialize Firebase
-// const app = !getApps().length ? initializeApp(firebaseConfig): getApp()
-export const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig): getApp()
+// export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const appleProvider = new OAuthProvider('apple.com');
