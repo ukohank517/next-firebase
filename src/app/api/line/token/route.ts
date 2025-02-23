@@ -68,17 +68,13 @@ export async function POST(request: Request) {
     const profile = await profileResponse.json();
 
     // Firebaseカスタムトークンを生成
-    // メモ: google, appleのフォーマットに合わせる
+    // ここは、google, appleのフォーマットに合わせることができない
     const customToken = await auth().createCustomToken(profile.userId, {
-      firebase: {
-        identities: {
-          line: {
-            userId: profile.userId,
-            displayName: profile.displayName,
-            pictureUrl: profile.pictureUrl,
-            email: decodedIdToken.email,
-          },
-        },
+      customIdentities: {
+        userId: profile.userId,
+        displayName: profile.displayName,
+        pictureUrl: profile.pictureUrl,
+        email: decodedIdToken.email,
       },
     });
 

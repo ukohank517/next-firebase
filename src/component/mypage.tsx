@@ -1,5 +1,5 @@
 'use client';
-import { auth } from '@/lib/firebase';
+import { auth, handleLogoutAccount } from '@/lib/firebase';
 import { Box, Button, createToaster, Heading, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -42,6 +42,27 @@ export default function MypageContent() {
     }
   };
 
+  const handleWithdraw = async () => {
+    if (!loginUser) return;
+
+    if (window.confirm('本当に退会しますか？この操作は取り消せません。')) {
+      try {
+        console.log('退会する処理をして〜〜〜〜〜〜〜〜〜〜〜〜');
+        toaster.create({
+          title: '退会完了',
+          description: '退会処理が完了しました。ご利用ありがとうございました。',
+          duration: 5000,
+        });
+        // router.push('/');
+      } catch (error) {
+        toaster.create({
+          title: 'エラー',
+          description: '退会処理に失敗しました。' + error,
+          duration: 5000,
+        });
+      }
+    }
+  };
 
   return (
     <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minH="100vh">
@@ -53,9 +74,14 @@ export default function MypageContent() {
         <Text color="gray.600">Eメール:{loginUser?.email}</Text>
         <Text color="gray.600">ユーザーID:{loginUser?.uid}</Text>
       </Box>
-      <Button colorScheme="red" onClick={handleLogout}>
+      <Box mt={4} display="flex" flexDirection="column" gap={2}>
+        <Button colorScheme="red" onClick={() => handleLogoutAccount(router, toaster)}>
           ログアウト
-      </Button>
+        </Button>
+        <Button colorScheme="gray" onClick={handleWithdraw}>
+          退会する
+        </Button>
+      </Box>
     </Box>
   )
 }

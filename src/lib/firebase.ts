@@ -1,6 +1,10 @@
+// MEMO: フロントエンド用のfirebase関連設定
+
+import { CreateToasterReturn } from '@chakra-ui/react';
 import { getApp, getApps, initializeApp } from "firebase/app";
 
-import { getAuth, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect } from 'firebase/auth';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,13 +15,57 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
-
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
+const appleProvider = new OAuthProvider('apple.com');
 
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig): getApp()
 // export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
-export const appleProvider = new OAuthProvider('apple.com');
 
+export  const handleGoogleLoginRedirect = async () => {
+  console.log("google");
+  await auth.signOut();
+  auth.languageCode = "en"; // 言語指定はここで行う
+  signInWithRedirect(auth, googleProvider);
+}
+
+export const handleAppleLoginRedirect = async () => {
+  console.log("apple");
+  auth.languageCode = "en"; // 言語指定はここで行う
+  signInWithRedirect(auth, appleProvider);
+}
+
+export const handleGoogleLoginPopup = async (router: AppRouterInstance, toaster: CreateToasterReturn) => {
+  console.log("google");
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    if(result.user) {
+      router.push('/mypage')
+    }
+  } catch (error) {
+    console.error(error);
+    toaster.create({
+      title: 'login error',
+      description: 'ログインに失敗しました',
+      duration: 5000,
+    })
+  }
+}
+
+export const handleLogoutAccount = async (router: AppRouterInstance, toaster: CreateToasterReturn) => {
+  try {
+    await auth.signOut();
+    router.push('/');
+  } catch (error) {
+      toaster.create({
+      title: 'エラー',
+      description: 'ログアウトに失敗しました'+error,
+      duration: 5000,
+    });
+  }
+}

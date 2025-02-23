@@ -1,7 +1,7 @@
 'use client';
-import { appleProvider, auth, googleProvider } from '@/lib/firebase';
+import { auth, handleAppleLoginRedirect, handleGoogleLoginPopup, handleGoogleLoginRedirect } from '@/lib/firebase';
 import { Box, Button, createToaster, Heading, Link, Text } from '@chakra-ui/react';
-import { getRedirectResult, signInWithPopup, signInWithRedirect } from 'firebase/auth';
+import { getRedirectResult } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -45,47 +45,6 @@ export default function Content() {
 
   const lineLoginHref = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_LINE_CHANNEL_ID}&redirect_uri=${process.env.NEXT_PUBLIC_LINE_CALLBACK_URL}&state=hoge&bot_prompt=normal&scope=profile%20openid%20email&nonce=foobar&prompt=consent`
 
-
-  const handleGoogleClickRedirect = async () => {
-    console.log("google");
-    auth.languageCode = "en"; // 言語指定はここで行う
-    signInWithRedirect(auth, googleProvider);
-  }
-
-  const handleGoogleClick = async () => {
-    console.log("google");
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      if(result.user) {
-        router.push('/mypage')
-      }
-    } catch (error) {
-      console.error(error);
-      toaster.create({
-        title: 'login error',
-        description: 'ログインに失敗しました',
-        duration: 5000,
-      })
-    }
-  }
-
-  const handleAppleClick = async () => {
-    console.log("apple");
-    try {
-      const result = await signInWithPopup(auth, appleProvider);
-      if(result.user) {
-        router.push('/mypage')
-      }
-    } catch (error) {
-      console.error(error);
-      toaster.create({
-        title: 'login error',
-        description: 'ログインに失敗しました',
-        duration: 5000,
-      })
-    }
-  }
-
   return (
     <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minH="100vh">
       <Heading as="h1" size="xl" fontWeight="bold">
@@ -101,7 +60,7 @@ export default function Content() {
         <Link color={'white'} href={lineLoginHref}>LINEでログイン(redirect)</Link>
       </Button>
       <Button
-        onClick={handleGoogleClickRedirect}
+        onClick={handleGoogleLoginRedirect}
         colorScheme="blue"
         size="lg"
         mt={4}
@@ -109,7 +68,7 @@ export default function Content() {
         Google でログイン(redirect)
       </Button>
       <Button
-        onClick={handleGoogleClick}
+        onClick={() => handleGoogleLoginPopup(router, toaster)}
         colorScheme="blue"
         size="lg"
         mt={4}
@@ -117,12 +76,12 @@ export default function Content() {
         Google でログイン(popup)
       </Button>
       <Button
-        onClick={handleAppleClick}
+        onClick={handleAppleLoginRedirect}
         colorScheme="blackAlpha"
         size="lg"
         mt={4}
       >
-        Apple でログイン(popup)
+        Apple でログイン(redirect)
       </Button>
     </Box>
   );
