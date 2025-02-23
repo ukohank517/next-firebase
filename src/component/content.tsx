@@ -1,6 +1,6 @@
 'use client';
 import { appleProvider, auth, googleProvider } from '@/lib/firebase';
-import { Box, Button, createToaster, Heading, Text } from '@chakra-ui/react';
+import { Box, Button, createToaster, Heading, Link, Text } from '@chakra-ui/react';
 import { getRedirectResult, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -16,6 +16,7 @@ const toaster = createToaster({
 export default function Content() {
   const router = useRouter();
 
+  // google, apple がリダイレクト後の処理はここ
   useEffect(() => {
     if (typeof window === "undefined") {
       console.log("SSR, ignore");
@@ -41,6 +42,8 @@ export default function Content() {
       });
 
   }, []);
+
+  const lineLoginHref = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_LINE_CHANNEL_ID}&redirect_uri=${process.env.NEXT_PUBLIC_LINE_CALLBACK_URL}&state=hoge&bot_prompt=normal&scope=profile%20openid%20email&nonce=foobar&prompt=consent`
 
 
   const handleGoogleClickRedirect = async () => {
@@ -90,6 +93,13 @@ export default function Content() {
       </Heading>
       <Text>参考資料(googleLoginについて): https://firebase.google.com/docs/auth/web/google-signin?hl=ja</Text>
       <Text>参考資料(signInWithRedirectのベストプラクティス): https://firebase.google.com/docs/auth/web/redirect-best-practices?hl=ja</Text>
+      <Button
+        colorScheme="blue"
+        size="lg"
+        mt={4}
+      >
+        <Link color={'white'} href={lineLoginHref}>LINEでログイン(redirect)</Link>
+      </Button>
       <Button
         onClick={handleGoogleClickRedirect}
         colorScheme="blue"
