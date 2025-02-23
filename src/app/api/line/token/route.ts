@@ -7,6 +7,19 @@ if (!adminApp) {
   throw new Error('Firebase Admin is not initialized');
 }
 
+// JWT decoding function (without verification)
+function decodeJwt(token: string) {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const jsonPayload = decodeURIComponent(
+    atob(base64)
+      .split('')
+      .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+      .join('')
+  );
+  return JSON.parse(jsonPayload);
+}
+
 export async function POST(request: Request) {
   try {
     const { code } = await request.json();
@@ -34,8 +47,12 @@ export async function POST(request: Request) {
       throw new Error('Failed to get LINE access token');
     }
 
-    const { access_token, refresh_token, expires_in, id_token } = await tokenResponse.json();
-    console.log('get tokenResponse', access_token, refresh_token, expires_in, id_token);
+    // 取得できるのはaccess_token, refresh_token, expires_in, id_token
+    const { access_token, id_token } = await tokenResponse.json();
+
+    // id_tokenをデコードして中身を確認
+    const decodedIdToken = decodeJwt(id_token);
+    // TODO: decodedIdToken.emailがなければログアウト
 
     // LINEプロフィール情報を取得
     const profileResponse = await fetch('https://api.line.me/v2/profile', {
@@ -51,11 +68,17 @@ export async function POST(request: Request) {
     const profile = await profileResponse.json();
 
     // Firebaseカスタムトークンを生成
+    // メモ: google, appleのフォーマットに合わせる
     const customToken = await auth().createCustomToken(profile.userId, {
-      line: {
-        userId: profile.userId,
-        displayName: profile.displayName,
-        pictureUrl: profile.pictureUrl,
+      firebase: {
+        identities: {
+          line: {
+            userId: profile.userId,
+            displayName: profile.displayName,
+            pictureUrl: profile.pictureUrl,
+            email: decodedIdToken.email,
+          },
+        },
       },
     });
 
