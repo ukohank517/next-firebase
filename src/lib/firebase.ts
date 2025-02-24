@@ -16,9 +16,6 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({
-  prompt: 'select_account'
-});
 const appleProvider = new OAuthProvider('apple.com');
 
 
@@ -30,13 +27,18 @@ export const auth = getAuth(app);
 export  const handleGoogleLoginRedirect = async () => {
   console.log("google");
   await auth.signOut();
-  auth.languageCode = "en"; // 言語指定はここで行う
+  googleProvider.setCustomParameters({
+    prompt: 'select_account',
+    hl: "ja" // 言語指定はここで行う(ja, en)
+  });
   signInWithRedirect(auth, googleProvider);
 }
 
 export const handleAppleLoginRedirect = async () => {
   console.log("apple");
-  auth.languageCode = "en"; // 言語指定はここで行う
+  appleProvider.setCustomParameters({
+    locale: "ja", // Apple用の言語指定(ja, en)
+  });
   signInWithRedirect(auth, appleProvider);
 }
 

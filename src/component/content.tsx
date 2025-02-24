@@ -43,7 +43,8 @@ export default function Content() {
 
   }, []);
 
-  const lineLoginHref = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_LINE_CHANNEL_ID}&redirect_uri=${process.env.NEXT_PUBLIC_LINE_CALLBACK_URL}&state=hoge&bot_prompt=normal&scope=profile%20openid%20email&nonce=foobar`
+  const lang = "ja"; // 言語指定(ja, en)
+  const lineLoginHref = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_LINE_CHANNEL_ID}&redirect_uri=${process.env.NEXT_PUBLIC_LINE_CALLBACK_URL}&state=hoge&bot_prompt=normal&scope=profile%20openid%20email&nonce=foobar&ui_locales=${lang}`
 
   return (
     <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minH="100vh">
