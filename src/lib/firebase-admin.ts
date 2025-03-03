@@ -1,15 +1,14 @@
-import { getApps, initializeApp, cert } from 'firebase-admin/app';
+import { initializeApp, cert, getApp, getApps } from 'firebase-admin/app';
 import type { ServiceAccount } from 'firebase-admin';
-import serviceAccount from './yoake-stg.service-accountkey.json';
 
-console.log('Firebase Admin Config:', {
-  projectId: serviceAccount.project_id,
-  clientEmail: serviceAccount.client_email,
-  // Note: Not logging private key for security reasons
-});
+const firebaseConfig: ServiceAccount = {
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+  privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY,
+};
 
 export const adminApp = !getApps().length
   ? initializeApp({
-      credential: cert(serviceAccount as ServiceAccount),
+      credential: cert(firebaseConfig),
     })
-  : getApps()[0];
+  : getApp();
