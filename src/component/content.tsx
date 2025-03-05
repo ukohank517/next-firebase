@@ -1,5 +1,5 @@
 'use client';
-import { auth, handleAppleLoginRedirect, handleGoogleLoginPopup, handleGoogleLoginRedirect } from '@/lib/firebase';
+import { auth, getRedirectUri, handleAppleLoginRedirect, handleGoogleLoginPopup, handleGoogleLoginRedirect } from '@/lib/firebase';
 import { Box, Button, createToaster, Heading, Link, Text } from '@chakra-ui/react';
 import { getRedirectResult } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
@@ -27,7 +27,9 @@ export default function Content() {
       .then((result) => {
         if (result?.user) {
           console.log("ログイン成功:", result.user);
-          router.push('/mypage')
+
+          const redirectUri = getRedirectUri() || '/mypage';
+          router.push(redirectUri)
         }else {
           console.log("ログイン情報なし");
         }

@@ -24,13 +24,16 @@ const app = !getApps().length ? initializeApp(firebaseConfig): getApp()
 // export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-export  const handleGoogleLoginRedirect = async () => {
+export const handleGoogleLoginRedirect = async () => {
   console.log("google");
   await auth.signOut();
+
   googleProvider.setCustomParameters({
     prompt: 'select_account',
     hl: "ja" // 言語指定はここで行う(ja, en)
   });
+
+  setRedirectUri("/mypage?hoge=fuga");
   signInWithRedirect(auth, googleProvider);
 }
 
@@ -39,6 +42,8 @@ export const handleAppleLoginRedirect = async () => {
   appleProvider.setCustomParameters({
     locale: "ja", // Apple用の言語指定(ja, en)
   });
+
+  setRedirectUri("/mypage?hoge=fuga");
   signInWithRedirect(auth, appleProvider);
 }
 
@@ -71,3 +76,16 @@ export const handleLogoutAccount = async (router: AppRouterInstance, toaster: Cr
     });
   }
 }
+
+// ------------------------------
+// ログイン後のリダイレクト先をセッションストレージに保存する処理
+const LOGIN_REDIRECT_PARAM = 'loginRedirectUri'
+export const setRedirectUri = (uri: string) => {
+  sessionStorage.setItem(LOGIN_REDIRECT_PARAM, uri)
+}
+export const getRedirectUri = () => {
+  const result = sessionStorage.getItem(LOGIN_REDIRECT_PARAM)
+  sessionStorage.removeItem(LOGIN_REDIRECT_PARAM)
+  return result
+}
+
