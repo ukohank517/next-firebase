@@ -64,6 +64,31 @@ export default function MypageContent() {
     }
   };
 
+    const handleCallSampleAPI = async () => {
+    try{
+      console.log('サンプルAPIを呼び出します');
+      const idToken = await auth.currentUser?.getIdToken(); // idTokenでサーバーにアクセス
+      if (!idToken) throw new Error('ログインしていません');
+
+      const response = await fetch('/api/auth/sample', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+      const data = await response.json();
+      console.log('API Response:', data);
+    } catch (error) {
+      toaster.create({
+        title: 'error',
+        description: 'エラーが発生しました。' + error,
+        duration: 5000,
+      })
+    }
+
+
+  };
+
   return (
     <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minH="100vh">
       <Heading size="lg">マイページ</Heading>
@@ -75,6 +100,9 @@ export default function MypageContent() {
         <Text color="gray.600">ユーザーID:{loginUser?.uid}</Text>
       </Box>
       <Box mt={4} display="flex" flexDirection="column" gap={2}>
+        <Button colorScheme="blue" onClick={handleCallSampleAPI}>
+          サーバー呼び出し
+        </Button>
         <Button colorScheme="red" onClick={() => handleLogoutAccount(router, toaster)}>
           ログアウト
         </Button>

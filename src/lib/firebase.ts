@@ -19,6 +19,7 @@ const googleProvider = new GoogleAuthProvider();
 const appleProvider = new OAuthProvider('apple.com');
 
 
+// クライアント側で利用するfirebaseのsdk
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig): getApp()
 // export const app = initializeApp(firebaseConfig);

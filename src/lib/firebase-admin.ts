@@ -7,6 +7,7 @@ const firebaseConfig: ServiceAccount = {
   privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY,
 };
 
+// サーバー側で利用するfirebaseのsdk
 export const adminApp = !getApps().length
   ? initializeApp({
       credential: cert(firebaseConfig),
