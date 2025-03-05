@@ -12,7 +12,7 @@ export default function LineCallback() {
 
   useEffect(() => {
     const code = searchParams.get('code');
-    // const state = searchParams.get('state');
+    const state = searchParams.get('state');
 
     if (!code) {
       console.error('Authorization code not found');
@@ -41,8 +41,15 @@ export default function LineCallback() {
         await signInWithCustomToken(auth, customToken);
         console.log('signInWithCustomToken', customToken);
 
+        let redirectUri = '/mypage';
+        if (state) {
+          const customData = JSON.parse(decodeURIComponent(state));
+          redirectUri = customData.redirectUri;
+        }
+        console.log('redirectUri', redirectUri);
+
         // ログインできるとマイページへリダイレクト
-        router.push('/mypage');
+        router.push(redirectUri)
       } catch (error) {
         console.error('Authentication error:', error);
         // router.push('/?error=auth_failed');
