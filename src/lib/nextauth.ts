@@ -30,13 +30,19 @@ export const authOptions: NextAuthOptions = {
           try {
             const adminAuth = getAuth(adminApp)
             const decoded = await adminAuth.verifyIdToken(idToken) // 2
+            console.log('--------------------------------')
+            console.log(decoded)
+
+            const name = decoded.name || decoded.customIdentities?.displayName || 'noname' // google, apple形式優先、なければline形式、それもなければ空文字
+            const email = decoded.email || decoded.customIdentities?.email || '' // google, apple形式優先、なければline形式、それもなければ空文字
+            const image = decoded.picture || decoded.customIdentities?.pictureUrl || '' // google, apple形式優先、なければline形式、それもなければ空文字
 
             const user = {
-              id: decoded.user_id,
+              id: decoded.sub,
               uid: decoded.uid,
-              name: decoded.name || '',
-              email: decoded.email || '',
-              image: decoded.picture || '',
+              name,
+              email,
+              image,
               idToken,
               refreshToken,
               tokenExpiryTime: decoded.exp || 0,

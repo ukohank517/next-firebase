@@ -6,6 +6,8 @@ import { Box, Spinner, Text } from '@chakra-ui/react';
 import { auth } from '@/lib/firebase';
 import { signInWithCustomToken } from 'firebase/auth';
 
+import { signIn as signInWithNextAuth } from 'next-auth/react';
+
 export default function LineCallback() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -16,7 +18,6 @@ export default function LineCallback() {
 
     if (!code) {
       console.error('Authorization code not found');
-      // router.push('/');
       return;
     }
 
@@ -38,18 +39,22 @@ export default function LineCallback() {
         const { customToken } = await response.json();
 
         // Firebaseでカスタムトークンを使用して認証
-        await signInWithCustomToken(auth, customToken);
-        console.log('signInWithCustomToken', customToken);
+        const userCredential = await signInWithCustomToken(auth, customToken);
+        const firebaseUser = userCredential.user;
+        const idToken = await firebaseUser.getIdToken();
+        const refreshToken = firebaseUser.refreshToken;
 
         let redirectUri = '/mypage';
         if (state) {
           const customData = JSON.parse(decodeURIComponent(state));
           redirectUri = customData.redirectUri;
         }
-        console.log('redirectUri', redirectUri);
 
-        // ログインできるとマイページへリダイレクト
-        router.push(redirectUri)
+        await signInWithNextAuth('credentials', {
+          idToken,
+          refreshToken,
+          callbackUrl: redirectUri,
+        });
       } catch (error) {
         console.error('Authentication error:', error);
         // router.push('/?error=auth_failed');
