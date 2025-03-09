@@ -30,11 +30,14 @@ export const authOptions: NextAuthOptions = {
           try {
             const adminAuth = getAuth(adminApp)
             const decoded = await adminAuth.verifyIdToken(idToken) // 2
+            const firebaseUserInfo = await adminAuth.getUser(decoded.uid) // 3
             console.log('--------------------------------')
             console.log(decoded)
+            console.log(firebaseUserInfo)
 
             const name = decoded.name || decoded.customIdentities?.displayName || 'noname' // google, apple形式優先、なければline形式、それもなければ空文字
-            const email = decoded.email || decoded.customIdentities?.email || '' // google, apple形式優先、なければline形式、それもなければ空文字
+
+            const email = firebaseUserInfo.providerData[0]?.email || decoded.customIdentities?.email || '' // google/apple形式優先、なければline形式、それもなければ空文字
             const image = decoded.picture || decoded.customIdentities?.pictureUrl || '' // google, apple形式優先、なければline形式、それもなければ空文字
 
             const user = {

@@ -1,5 +1,5 @@
 'use client';
-import { auth, handleLogoutAccount } from '@/lib/firebase';
+import { logoutAccount } from '@/lib/firebase';
 import { Box, Button, createToaster, Heading, HStack, Text } from '@chakra-ui/react';
 import { User } from 'next-auth';
 import { useSession } from 'next-auth/react';
@@ -36,17 +36,11 @@ export default function MypageContent({loginUser}:{loginUser: User}) {
     }
   };
 
-    const handleCallSampleAPI = async () => {
+  const handleCallSampleAPI = async () => {
     try{
       console.log('サンプルAPIを呼び出します');
-      const idToken = await auth.currentUser?.getIdToken(); // idTokenでサーバーにアクセス
-      if (!idToken) throw new Error('ログインしていません');
-
       const response = await fetch('/api/auth/sample', {
         method: 'GET',
-        // headers: {
-        //   Authorization: `Bearer ${idToken}`,
-        // },
       });
       const data = await response.json();
       console.log('API Response:', data);
@@ -57,9 +51,18 @@ export default function MypageContent({loginUser}:{loginUser: User}) {
         duration: 5000,
       })
     }
-
-
   };
+
+  const handleLogout = async () => {
+    const logoutResult = await logoutAccount();
+    if (!logoutResult) {
+      toaster.create({
+        title: 'エラー',
+        description: 'ログアウトに失敗しました',
+        duration: 5000,
+      });
+    }
+  }
 
   return (
     <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minH="100vh">
@@ -76,14 +79,16 @@ export default function MypageContent({loginUser}:{loginUser: User}) {
         <Text color="gray.600">ようこそ、{data?.user.name || 'ゲスト'}さん</Text>
         <Text color="gray.600">Eメール:{data?.user.email}</Text>
         <Text color="gray.600">ユーザーID:{data?.user.uid}</Text>
-
       </Box>
       </HStack>
+      <Box width={'100%'} mt={4} p={4} borderWidth={1} borderRadius={8}>
+        <Text color="gray.600">idToken: {loginUser.idToken}</Text>
+      </Box>
       <Box mt={4} display="flex" flexDirection="column" gap={2}>
         <Button colorScheme="blue" onClick={handleCallSampleAPI}>
           サーバー呼び出し
         </Button>
-        <Button colorScheme="red" onClick={() => handleLogoutAccount(router, toaster)}>
+        <Button colorScheme="red" onClick={handleLogout}>
           ログアウト
         </Button>
         <Button colorScheme="gray" onClick={handleWithdraw}>

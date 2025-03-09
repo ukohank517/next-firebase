@@ -43,10 +43,6 @@ export async function POST(request: Request) {
       }),
     });
 
-    if (tokenResponse.status !== 200) {
-      throw new Error('Failed to get LINE access token');
-    }
-
     // 取得できるのはaccess_token, refresh_token, expires_in, id_token
     const { access_token, id_token } = await tokenResponse.json();
 

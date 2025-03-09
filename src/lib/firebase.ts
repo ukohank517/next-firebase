@@ -6,7 +6,7 @@ import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithRedirect } from 'firebase/auth';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-import { signOut as signOutWithNextAuth } from "next-auth/react";
+import { signIn as signInWithNextAuth, signOut as signOutWithNextAuth } from "next-auth/react";
 
 
 const firebaseConfig = {
@@ -19,6 +19,7 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('email'); // googleではemailスコープ入れないとメアド取れない
 const appleProvider = new OAuthProvider('apple.com');
 
 
@@ -26,11 +27,10 @@ const appleProvider = new OAuthProvider('apple.com');
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig): getApp()
 // export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+export const firebaseAuth = getAuth(app);
 
-export const handleGoogleLoginRedirect = async () => {
-  console.log("google");
-  await auth.signOut();
+export const redirectToGoogleLoginPage = async () => {
+  await firebaseAuth.signOut();
 
   googleProvider.setCustomParameters({
     prompt: 'select_account',
@@ -38,35 +38,38 @@ export const handleGoogleLoginRedirect = async () => {
   });
 
   setRedirectUri("/mypage?hoge=fuga");
-  signInWithRedirect(auth, googleProvider);
+  signInWithRedirect(firebaseAuth, googleProvider);
 }
 
-export const handleAppleLoginRedirect = async () => {
-  console.log("apple");
+export const redirectToAppleRedirectPage = async () => {
   appleProvider.setCustomParameters({
     locale: "ja", // Apple用の言語指定(ja, en)
   });
 
   setRedirectUri("/mypage?hoge=fuga");
-  signInWithRedirect(auth, appleProvider);
+  signInWithRedirect(firebaseAuth, appleProvider);
 }
 
-export const handleLogoutAccount = async (router: AppRouterInstance, toaster: CreateToasterReturn) => {
+export const loginAccount = async (idToken: string, refreshToken: string, redirectUtl: string) => {
+  await signInWithNextAuth('credentials', {
+    idToken,
+    refreshToken,
+    callbackUrl: redirectUtl
+  })
+}
+export const logoutAccount = async (): Promise<boolean> => {
   try {
-    await auth.signOut().then(() => {
+    await firebaseAuth.signOut().then(() => {
       signOutWithNextAuth({ callbackUrl: '/' });
     });
-
+    return true;
   } catch (error) {
-      toaster.create({
-      title: 'エラー',
-      description: 'ログアウトに失敗しました'+error,
-      duration: 5000,
-    });
+    console.error(error);
+    return false
   }
 }
 
-// ------------------------------
+// google, appleに関しては、ログイン後のリダイレクト先をセッションストレージに保存する処理
 // ログイン後のリダイレクト先をセッションストレージに保存する処理
 const LOGIN_REDIRECT_PARAM = 'loginRedirectUri'
 export const setRedirectUri = (uri: string) => {
@@ -77,3 +80,4 @@ export const getRedirectUri = () => {
   sessionStorage.removeItem(LOGIN_REDIRECT_PARAM)
   return result
 }
+

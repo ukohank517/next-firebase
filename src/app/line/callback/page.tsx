@@ -3,10 +3,8 @@
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Box, Spinner, Text } from '@chakra-ui/react';
-import { auth } from '@/lib/firebase';
+import { firebaseAuth, loginAccount } from '@/lib/firebase';
 import { signInWithCustomToken } from 'firebase/auth';
-
-import { signIn as signInWithNextAuth } from 'next-auth/react';
 
 export default function LineCallback() {
   const router = useRouter();
@@ -39,7 +37,7 @@ export default function LineCallback() {
         const { customToken } = await response.json();
 
         // Firebaseでカスタムトークンを使用して認証
-        const userCredential = await signInWithCustomToken(auth, customToken);
+        const userCredential = await signInWithCustomToken(firebaseAuth, customToken);
         const firebaseUser = userCredential.user;
         const idToken = await firebaseUser.getIdToken();
         const refreshToken = firebaseUser.refreshToken;
@@ -50,11 +48,7 @@ export default function LineCallback() {
           redirectUri = customData.redirectUri;
         }
 
-        await signInWithNextAuth('credentials', {
-          idToken,
-          refreshToken,
-          callbackUrl: redirectUri,
-        });
+        await loginAccount(idToken, refreshToken, redirectUri);
       } catch (error) {
         console.error('Authentication error:', error);
         // router.push('/?error=auth_failed');
