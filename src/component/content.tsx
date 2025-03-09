@@ -5,6 +5,8 @@ import { getRedirectResult } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+import { signIn as signInWithNextAuth } from 'next-auth/react';
+
 // memo:
 // https://firebase.google.com/docs/auth/web/apple?hl=ja&_gl=1*166sfd8*_up*MQ..*_ga*Mjk3NTk0ODg0LjE3Mzk3MTM1ODE.*_ga_CW55HF8NVT*MTczOTcxMzU4MC4xLjAuMTczOTcxNDEyNC4wLjAuMA..
 
@@ -24,12 +26,20 @@ export default function Content() {
     }
 
     getRedirectResult(auth)
-      .then((result) => {
+      .then(async (result) => {
         if (result?.user) {
           console.log("ログイン成功:", result.user);
 
+          const idToken = await result.user.getIdToken();
+          const refreshToken = result.user.refreshToken;
+
           const redirectUri = getRedirectUri() || '/mypage';
-          router.push(redirectUri)
+
+          await signInWithNextAuth('credentials', {
+            idToken,
+            refreshToken,
+            callbackUrl: redirectUri, // ログイン後の遷移先
+          })
         }else {
           console.log("ログイン情報なし");
         }

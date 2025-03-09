@@ -6,6 +6,9 @@ import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
+import { signIn as signInWithNextAuth, signOut as signOutWithNextAuth } from "next-auth/react";
+
+
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -67,8 +70,10 @@ export const handleGoogleLoginPopup = async (router: AppRouterInstance, toaster:
 
 export const handleLogoutAccount = async (router: AppRouterInstance, toaster: CreateToasterReturn) => {
   try {
-    await auth.signOut();
-    router.push('/');
+    await auth.signOut().then(() => {
+      signOutWithNextAuth({ callbackUrl: '/' });
+    });
+
   } catch (error) {
       toaster.create({
       title: 'エラー',
@@ -89,4 +94,3 @@ export const getRedirectUri = () => {
   sessionStorage.removeItem(LOGIN_REDIRECT_PARAM)
   return result
 }
-

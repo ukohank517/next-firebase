@@ -1,16 +1,18 @@
+'use client';
 import { chakra, Container, Heading } from '@chakra-ui/react'
-
-import { useAuthContext } from '@/app/authProvider'
+import { useSession } from 'next-auth/react';
 
 export const Header = () => {
-  const { user } = useAuthContext()
+  const { status, data } = useSession()
 
   return (
     <chakra.header py={4} bgColor={'blue.600'}>
       <Container maxW={'container.lg'}>
          <Heading color={'white'}>
-           {user ? 'ログイン中' : 'ログアウト中'}
-         </Heading>
+            {status === 'loading' && 'Loading...'}
+            {status === 'unauthenticated' && 'Please login'}
+            {status === 'authenticated' && 'welcome, ' + data.user.name }
+          </Heading>
       </Container>
     </chakra.header>
   )

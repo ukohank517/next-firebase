@@ -1,46 +1,18 @@
 'use client';
 import { auth, handleLogoutAccount } from '@/lib/firebase';
-import { Box, Button, createToaster, Heading, Text } from '@chakra-ui/react';
+import { Box, Button, createToaster, Heading, HStack, Text } from '@chakra-ui/react';
+import { User } from 'next-auth';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { User } from "firebase/auth";
 
 const toaster = createToaster({
   placement: "bottom-end",
   pauseOnPageIdle: true,
 });
 
-export default function MypageContent() {
-  const [loginUser, setUser] = useState<User | null>(null);
-
+export default function MypageContent({loginUser}:{loginUser: User}) {
   const router = useRouter();
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        router.push('/') // ログインページへ遷移
-      }else{
-        setUser(user);
-        console.log(user);
-        const idToken = await user.getIdToken();
-        console.log('idToken::', idToken);
-      }
-    })
-    return () => unsubscribe();
-  }, [router])
-
-  const handleLogout = async () => {
-    try {
-      await auth.signOut();
-      router.push('/');
-    } catch (error) {
-        toaster.create({
-        title: 'エラー',
-        description: 'ログアウトに失敗しました'+error,
-        duration: 5000,
-      });
-    }
-  };
+  const { status, data } = useSession()
 
   const handleWithdraw = async () => {
     if (!loginUser) return;
@@ -92,13 +64,21 @@ export default function MypageContent() {
   return (
     <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minH="100vh">
       <Heading size="lg">マイページ</Heading>
+      <HStack>
       <Box>
-        <Text fontSize="lg">
-          ようこそ、{loginUser?.displayName || 'ゲスト'}さん
-        </Text>
+        <Text fontSize="lg">【サーバー情報】</Text>
+        <Text color="gray.600">ようこそ、{loginUser?.name || 'ゲスト'}さん</Text>
         <Text color="gray.600">Eメール:{loginUser?.email}</Text>
         <Text color="gray.600">ユーザーID:{loginUser?.uid}</Text>
       </Box>
+      <Box>
+        <Text fontSize="lg">【クライアント情報】</Text>
+        <Text color="gray.600">ようこそ、{data?.user.name || 'ゲスト'}さん</Text>
+        <Text color="gray.600">Eメール:{data?.user.email}</Text>
+        <Text color="gray.600">ユーザーID:{data?.user.uid}</Text>
+
+      </Box>
+      </HStack>
       <Box mt={4} display="flex" flexDirection="column" gap={2}>
         <Button colorScheme="blue" onClick={handleCallSampleAPI}>
           サーバー呼び出し
