@@ -1,5 +1,6 @@
 import { initializeApp, cert, getApp, getApps } from 'firebase-admin/app';
 import type { ServiceAccount } from 'firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
 
 const firebaseConfig: ServiceAccount = {
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -8,8 +9,9 @@ const firebaseConfig: ServiceAccount = {
 };
 
 // サーバー側で利用するfirebaseのsdk
-export const adminApp = !getApps().length
+const adminApp = !getApps().length
   ? initializeApp({
       credential: cert(firebaseConfig),
     })
   : getApp();
+export const firebaseAdminAuth = getAuth(adminApp);

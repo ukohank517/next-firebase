@@ -1,5 +1,5 @@
 'use client';
-import { logoutAccount } from '@/lib/firebase';
+import { logoutAccount } from '@/lib/firebase-client';
 import { Box, Button, createToaster, Heading, HStack, Text } from '@chakra-ui/react';
 import { User } from 'next-auth';
 import { useSession } from 'next-auth/react';

@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Box, Spinner, Text } from '@chakra-ui/react';
-import { firebaseAuth, loginAccount } from '@/lib/firebase';
+import { firebaseAuth, loginAccount } from '@/lib/firebase-client';
 import { signInWithCustomToken } from 'firebase/auth';
 
 export default function LineCallback() {

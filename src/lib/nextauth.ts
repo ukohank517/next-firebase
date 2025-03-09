@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextAuthOptions } from 'next-auth'
-import { adminApp } from './firebase-admin'
-import { getAuth } from 'firebase-admin/auth'
+import { firebaseAdminAuth } from './firebase-server'
 import CredentialsProvider from 'next-auth/providers/credentials'
 
+// firebaseトークンの有効期限が切れる5分前に新しいトークンを取得する
+// 更新した情報はセッションに保存される
 const fetchNewIdToken = async (refreshToken: string) => {
   const res = await fetch(`https://securetoken.googleapis.com/v1/token?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}`, {
     method: 'POST',
@@ -28,17 +29,19 @@ export const authOptions: NextAuthOptions = {
         const { idToken, refreshToken } = credentials
         if (idToken && refreshToken) {
           try {
-            const adminAuth = getAuth(adminApp)
-            const decoded = await adminAuth.verifyIdToken(idToken) // 2
-            const firebaseUserInfo = await adminAuth.getUser(decoded.uid) // 3
-            console.log('--------------------------------')
-            console.log(decoded)
-            console.log(firebaseUserInfo)
+            const decoded = await firebaseAdminAuth.verifyIdToken(idToken) // 2
+            const firebaseUserInfo = await firebaseAdminAuth.getUser(decoded.uid) // 3
+            console.log('decoded:', decoded)
+            console.log('firebaseuserInfo: ', firebaseUserInfo)
 
-            const name = decoded.name || decoded.customIdentities?.displayName || 'noname' // google, apple形式優先、なければline形式、それもなければ空文字
+            // google, apple形式 || line形式 || 存在しない場合は空文字
+            const name = decoded.name || decoded.customIdentities?.displayName || 'noname' // TODO: バックエンドAPI側で設定した内容に置き換える
 
-            const email = firebaseUserInfo.providerData[0]?.email || decoded.customIdentities?.email || '' // google/apple形式優先、なければline形式、それもなければ空文字
-            const image = decoded.picture || decoded.customIdentities?.pictureUrl || '' // google, apple形式優先、なければline形式、それもなければ空文字
+            // google, apple形式 || line形式 || 存在しない場合は空文字
+            const email = firebaseUserInfo.providerData[0]?.email || decoded.customIdentities?.email || ''
+
+            // google, apple形式優先、なければline形式、それもなければ空文字
+            const image = decoded.picture || decoded.customIdentities?.pictureUrl || '' // TODO: バックエンドAPI側で設定した内容に置き換える
 
             const user = {
               id: decoded.sub,
@@ -100,7 +103,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 90 * 24 * 60 * 60, // 90 days
+    maxAge: 7 * 24 * 60 * 60, // 一週間セッション有効
   },
   pages: {
     signIn: '/',

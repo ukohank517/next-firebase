@@ -1,5 +1,5 @@
 'use client';
-import { firebaseAuth, getRedirectUri, redirectToAppleRedirectPage, redirectToGoogleLoginPage, loginAccount } from '@/lib/firebase';
+import { firebaseAuth, getRedirectUri, redirectToAppleRedirectPage, redirectToGoogleLoginPage, loginAccount } from '@/lib/firebase-client';
 import { Box, Button, createToaster, Heading, Link, Spinner, Text, VStack } from '@chakra-ui/react';
 import { getRedirectResult } from 'firebase/auth';
 import { useEffect, useState } from 'react';

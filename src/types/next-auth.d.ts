@@ -32,7 +32,6 @@ declare module "next-auth/jwt" {
     name: string;
     email: string;
     image: string;
-    emailVerified: boolean;
     idToken: string;
     refreshToken: string;
     tokenExpiryTime: number;

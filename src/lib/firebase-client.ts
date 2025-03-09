@@ -1,10 +1,7 @@
 // MEMO: フロントエンド用のfirebase関連設定
 
-import { CreateToasterReturn } from '@chakra-ui/react';
 import { getApp, getApps, initializeApp } from "firebase/app";
-
 import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithRedirect } from 'firebase/auth';
-import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 import { signIn as signInWithNextAuth, signOut as signOutWithNextAuth } from "next-auth/react";
 
@@ -24,9 +21,7 @@ const appleProvider = new OAuthProvider('apple.com');
 
 
 // クライアント側で利用するfirebaseのsdk
-// Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig): getApp()
-// export const app = initializeApp(firebaseConfig);
 export const firebaseAuth = getAuth(app);
 
 export const redirectToGoogleLoginPage = async () => {
@@ -50,6 +45,7 @@ export const redirectToAppleRedirectPage = async () => {
   signInWithRedirect(firebaseAuth, appleProvider);
 }
 
+// ログイン後のセッションをnext-authに渡す
 export const loginAccount = async (idToken: string, refreshToken: string, redirectUtl: string) => {
   await signInWithNextAuth('credentials', {
     idToken,
@@ -57,6 +53,8 @@ export const loginAccount = async (idToken: string, refreshToken: string, redire
     callbackUrl: redirectUtl
   })
 }
+
+// ログアウト処理, セッションも削除
 export const logoutAccount = async (): Promise<boolean> => {
   try {
     await firebaseAuth.signOut().then(() => {

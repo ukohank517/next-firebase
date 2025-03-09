@@ -1,11 +1,5 @@
 import { NextResponse } from 'next/server';
 import { auth } from 'firebase-admin';
-import { adminApp } from '@/lib/firebase-admin';
-
-// Firebase Adminの初期化確認
-if (!adminApp) {
-  throw new Error('Firebase Admin is not initialized');
-}
 
 // JWT decoding function (without verification)
 function decodeJwt(token: string) {
