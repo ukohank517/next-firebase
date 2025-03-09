@@ -1,8 +1,7 @@
 'use client';
-import { auth, getRedirectUri, handleAppleLoginRedirect, handleGoogleLoginPopup, handleGoogleLoginRedirect } from '@/lib/firebase';
+import { auth, getRedirectUri, handleAppleLoginRedirect, handleGoogleLoginRedirect } from '@/lib/firebase';
 import { Box, Button, createToaster, Heading, Link, Text } from '@chakra-ui/react';
 import { getRedirectResult } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { signIn as signInWithNextAuth } from 'next-auth/react';
@@ -16,8 +15,6 @@ const toaster = createToaster({
 });
 
 export default function Content() {
-  const router = useRouter();
-
   // google, apple がリダイレクト後の処理はここ
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -85,14 +82,6 @@ export default function Content() {
         mt={4}
       >
         Google でログイン(redirect)
-      </Button>
-      <Button
-        onClick={() => handleGoogleLoginPopup(router, toaster)}
-        colorScheme="blue"
-        size="lg"
-        mt={4}
-      >
-        Google でログイン(popup)
       </Button>
       <Button
         onClick={handleAppleLoginRedirect}

@@ -3,10 +3,10 @@
 import { CreateToasterReturn } from '@chakra-ui/react';
 import { getApp, getApps, initializeApp } from "firebase/app";
 
-import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithRedirect } from 'firebase/auth';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-import { signIn as signInWithNextAuth, signOut as signOutWithNextAuth } from "next-auth/react";
+import { signOut as signOutWithNextAuth } from "next-auth/react";
 
 
 const firebaseConfig = {
@@ -49,23 +49,6 @@ export const handleAppleLoginRedirect = async () => {
 
   setRedirectUri("/mypage?hoge=fuga");
   signInWithRedirect(auth, appleProvider);
-}
-
-export const handleGoogleLoginPopup = async (router: AppRouterInstance, toaster: CreateToasterReturn) => {
-  console.log("google");
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    if(result.user) {
-      router.push('/mypage')
-    }
-  } catch (error) {
-    console.error(error);
-    toaster.create({
-      title: 'login error',
-      description: 'ログインに失敗しました',
-      duration: 5000,
-    })
-  }
 }
 
 export const handleLogoutAccount = async (router: AppRouterInstance, toaster: CreateToasterReturn) => {
