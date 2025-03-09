@@ -44,9 +44,9 @@ export default function MypageContent({loginUser}:{loginUser: User}) {
 
       const response = await fetch('/api/auth/sample', {
         method: 'GET',
-        headers: {
-          Authorization: `Bearer ${idToken}`,
-        },
+        // headers: {
+        //   Authorization: `Bearer ${idToken}`,
+        // },
       });
       const data = await response.json();
       console.log('API Response:', data);
