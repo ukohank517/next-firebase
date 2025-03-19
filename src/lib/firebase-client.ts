@@ -25,8 +25,6 @@ const app = !getApps().length ? initializeApp(firebaseConfig): getApp()
 export const firebaseAuth = getAuth(app);
 
 export const redirectToGoogleLoginPage = async () => {
-  await firebaseAuth.signOut();
-
   googleProvider.setCustomParameters({
     prompt: 'select_account',
     hl: "ja" // 言語指定はここで行う(ja, en)
