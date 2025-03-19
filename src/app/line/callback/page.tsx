@@ -29,12 +29,14 @@ export default function LineCallback() {
           },
           body: JSON.stringify({ code }),
         });
+        const json = await response.json();
 
         if (!response.ok) {
-          throw new Error('Failed to get LINE token');
+          router.push(`/?error=${json.errorCode}`);
+          return;
         }
 
-        const { customToken } = await response.json();
+        const customToken = json.customToken;
 
         // Firebaseでカスタムトークンを使用して認証
         const userCredential = await signInWithCustomToken(firebaseAuth, customToken);
@@ -49,9 +51,9 @@ export default function LineCallback() {
         }
 
         await loginAccount(idToken, refreshToken, redirectUri);
-      } catch (error) {
-        console.error('Authentication error:', error);
-        // router.push('/?error=auth_failed');
+      } catch (error: unknown) {
+        console.error(error);
+        router.push(`/?error=UNKNOWN_ERROR`);
       }
     };
 

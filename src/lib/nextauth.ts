@@ -31,8 +31,6 @@ export const authOptions: NextAuthOptions = {
           try {
             const decoded = await firebaseAdminAuth.verifyIdToken(idToken) // 2
             const firebaseUserInfo = await firebaseAdminAuth.getUser(decoded.uid) // 3
-            console.log('decoded:', decoded)
-            console.log('firebaseuserInfo: ', firebaseUserInfo)
 
             // google, apple形式 || line形式 || 存在しない場合は空文字
             const name = decoded.name || decoded.customIdentities?.displayName || 'noname' // TODO: バックエンドAPI側で設定した内容に置き換える

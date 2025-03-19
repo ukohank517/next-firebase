@@ -33,7 +33,7 @@ export async function POST(request: Request) {
         code: code,
         redirect_uri: process.env.NEXT_PUBLIC_LINE_CALLBACK_URL!,
         client_id: process.env.NEXT_PUBLIC_LINE_CHANNEL_ID!,
-        client_secret: process.env.NEXT_PUBLIC_LINE_CHANNEL_SECRET!, // TODO: make this private
+        client_secret: process.env.LINE_CHANNEL_SECRET!,
       }),
     });
 
@@ -42,7 +42,6 @@ export async function POST(request: Request) {
 
     // id_tokenをデコードして中身を確認
     const decodedIdToken = decodeJwt(id_token);
-    // TODO: decodedIdToken.emailがなければログアウト
 
     // LINEプロフィール情報を取得
     const profileResponse = await fetch('https://api.line.me/v2/profile', {
@@ -51,8 +50,18 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!profileResponse.ok) {
-      throw new Error('Failed to get LINE profile');
+    let errorCode = ''
+    if (!decodedIdToken.email) {
+      errorCode = 'LINE_NO_MAIL'
+    } else if (!profileResponse.ok) {
+      errorCode = 'LINE_FAIL_PROFILE'
+    }
+
+    if(errorCode !== '') {
+      return NextResponse.json({
+        error: 'authorization error',
+        errorCode: errorCode
+      }, { status: 400 });
     }
 
     const profile = await profileResponse.json();
@@ -72,7 +81,10 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Token exchange error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Internal server error',
+        errorCode: 'UNKNOWN',
+      },
       { status: 500 }
     );
   }
